@@ -1,0 +1,55 @@
+=== Section 1: Construct + observe ===
+post.id() = p-1
+post.title() = Hello world
+post.author().name() = Ada
+post.author().verified() = true
+post.tags().size() = 3
+post.status() = DRAFT
+post.canEdit() = true
+
+=== Section 2: canBeFeatured ===
+Happy path (published)      : ok=true, reason=
+Still a draft               : ok=false, reason=post must be published
+Missing title               : ok=false, reason=title must not be blank
+Unverified author           : ok=false, reason=author must be verified
+Only 2 tags                 : ok=false, reason=at least 3 tags required
+Moderation flagged          : ok=false, reason=moderation status is not cleared: FLAGGED
+
+=== Section 3: validateForPublish ===
+All clear                   : ok=true, reason=
+Title missing               : ok=false, reason=title must not be blank
+Body too short              : ok=false, reason=body must be at least 50 characters
+Broken reference            : ok=false, reason=reference is broken: http://dead.example
+Missing SEO                 : ok=false, reason=SEO description must be present
+Moderation flagged          : ok=false, reason=moderation status is not cleared: FLAGGED
+Moderation pending          : ok=false, reason=moderation status is not cleared: PENDING
+
+=== Section 4: State transitions ===
+Start                       : status=DRAFT, canEdit=true
+After DRAFT->IN_REVIEW      : status=IN_REVIEW, canEdit=true
+After IN_REVIEW->SCHEDULED  : status=SCHEDULED, canEdit=false
+After SCHEDULED->PUBLISHED  : status=PUBLISHED, canEdit=false
+After PUBLISHED->ARCHIVED   : status=ARCHIVED, canEdit=false
+
+Rejection path:
+After IN_REVIEW->DRAFT      : status=DRAFT, canEdit=true
+
+Cancel schedule:
+After SCHEDULED->DRAFT      : status=DRAFT, canEdit=true
+
+Invalid transitions (each throws):
+DRAFT->PUBLISHED            : cannot transition from DRAFT to PUBLISHED
+DRAFT->ARCHIVED             : cannot transition from DRAFT to ARCHIVED
+PUBLISHED->DRAFT            : cannot transition from PUBLISHED to DRAFT
+ARCHIVED->PUBLISHED         : cannot transition from ARCHIVED to PUBLISHED
+
+=== Section 5: Excerpt strategies ===
+FIRST_PARAGRAPH             : [FirstParagraph excerpt of: Hello world (body length 100)]
+LEAD_IN                     : [LeadIn excerpt of: Hello world (body length 100)]
+SMART_TRUNCATE              : [SmartTruncate excerpt of: Hello world (body length 100)]
+
+=== Section 6: Render - conditional decorators ===
+ToC + Syntax (full)         : [[[[[This is the body of a post that is intentionally long enough to satisfy publish length requirements. + MarkdownToHtml] + SyntaxHighlight] + ExpandEmbeds] + InjectToC] + SanitizeXss]
+ToC only                    : [[[[This is the body of a post that is intentionally long enough to satisfy publish length requirements. + MarkdownToHtml] + ExpandEmbeds] + InjectToC] + SanitizeXss]
+Syntax only                 : [[[[This is the body of a post that is intentionally long enough to satisfy publish length requirements. + MarkdownToHtml] + SyntaxHighlight] + ExpandEmbeds] + SanitizeXss]
+Neither (minimal)           : [[[This is the body of a post that is intentionally long enough to satisfy publish length requirements. + MarkdownToHtml] + ExpandEmbeds] + SanitizeXss]

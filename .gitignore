@@ -1,0 +1,11 @@
+# Gradle
+.gradle/
+build/
+**/build/
+
+# ApprovalTests transient failures (the *.approved.txt files ARE committed)
+*.received.*
+.approval_tests_temp/
+
+.DS_Store
+.idea/
