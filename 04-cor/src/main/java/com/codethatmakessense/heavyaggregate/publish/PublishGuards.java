@@ -17,7 +17,7 @@ public final class PublishGuards {
     private PublishGuards() {
     }
 
-    public static Decision runChain(PublishCheck context) {
+    public static Decision checkAll(PublishCheck context) {
         for (PublishGuard guard : CHAIN) {
             Decision d = guard.check(context);
             if (!d.allowed()) {

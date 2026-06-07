@@ -44,14 +44,14 @@ class PublishGuardsTest {
     @Test
     @DisplayName("passes when every guard accepts the context")
     void passesWhenEveryGuardAcceptsTheContext() {
-        assertThat(PublishGuards.runChain(allClear()).allowed()).isTrue();
+        assertThat(PublishGuards.checkAll(allClear()).allowed()).isTrue();
     }
 
     @ParameterizedTest(name = "fails on the first failing guard - reason contains \"{0}\"")
     @MethodSource("firstFailureScenarios")
     @DisplayName("short-circuits on the first failing guard in chain order")
     void shortCircuitsOnTheFirstFailingGuardInChainOrder(String expectedReasonFragment, PublishCheck context) {
-        Decision d = PublishGuards.runChain(context);
+        Decision d = PublishGuards.checkAll(context);
         assertThat(d.allowed()).isFalse();
         assertThat(d.reason()).contains(expectedReasonFragment);
     }

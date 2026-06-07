@@ -62,7 +62,7 @@ public final class Post {
     }
 
     public Decision validateForPublish() {
-        return PublishGuards.runChain(
+        return PublishGuards.checkAll(
             new PublishCheck(title, body, references, seoDescription, moderationStatus)
         );
     }
